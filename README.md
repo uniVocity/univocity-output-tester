@@ -10,16 +10,25 @@ We use this project to test the output produced by our ETL framework, **[uniVoci
 This utility works with the following structure:
 
  1 - For each test class, there should be a directory with the exact same name.
+ 
  1.2 - For each test method of the class that produces an output to validate, there should be a file that matches the exact name of the test method.
+ 
  2 - Your test class should:
+ 
  2.1 - `Extend` from [OutputTester](./src/main/java/com/univocity/test/OutputTester.java)
+ 
  2.2 - or `contain` an instance of [OutputTester](./src/main/java/com/univocity/test/OutputTester.java)
+ 
  3 - Your test methods must:
+ 
  3.1 - use the `print` methods provided by the [OutputTester](./src/main/java/com/univocity/test/OutputTester.java)
+ 
  3.2 - or, store the output results somehow. `StringWriter` and `StringBuilder` are your friends. For convenience, we provided some `print` methods that take your `StringBuilder`s as parameters.
+ 
  4 - at the end of the test method, invoke `printAndValidate`, `printAndDontValidate` or `validate`. These will print and/or validate the output of your tests. The file that matches your test method name will be read and its contents will be compared against the output of your test. If a single character is different, your test will fail. 
 
-Note it is not a good practice to print the output of your tests unless you are debugging/trying to demonstrate something to someone (like we did in the following examples).
+
+**Note:** it is not a good practice to print the output of your tests unless you are debugging/trying to demonstrate something to someone (like we did in the following example).
 
 ## Using the [OutputTester](./src/main/java/com/univocity/test/OutputTester.java) as a parent class
 
