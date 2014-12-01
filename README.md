@@ -5,27 +5,27 @@ This very simple project was created by **[uniVocity](http://www.univocity.com)*
 
 It enforces a consistent and organized testing structure and enables you to easily see what is going on with your tests if you want to.
 
-We use this project to test the output produced by our ETL framework, **[uniVocity](http://www.univocity.com/pages/about-univocity)** and our parsing framework **[uniVocity-parsers](http://www.univocity.com/pages/about-parsers)**.
+We use this project to test the output produced by our ETL framework, **[uniVocity](http://www.univocity.com/pages/about-univocity)**, and our parsing framework, **[uniVocity-parsers](http://www.univocity.com/pages/about-parsers)**.
 
 This utility works with the following structure:
 
  1 - For each test class, there should be a directory with the exact same name.
  
- 1.2 - For each test method of the class that produces an output to validate, there should be a file that matches the exact name of the test method.
+ 1.2 - For each test method of the class, that produces an output to validate, there should be a file that matches the exact name of the test method.
  
- 2 - Your test class should:
+ 2 - Your test class must either:
  
  2.1 - `Extend` from [OutputTester](./src/main/java/com/univocity/test/OutputTester.java)
  
- 2.2 - or `contain` an instance of [OutputTester](./src/main/java/com/univocity/test/OutputTester.java)
+ 2.2 - Or `contain` an instance of [OutputTester](./src/main/java/com/univocity/test/OutputTester.java)
  
- 3 - Your test methods must:
+ 3 - Your test methods must either:
  
- 3.1 - use the `print` methods provided by the [OutputTester](./src/main/java/com/univocity/test/OutputTester.java)
+ 3.1 - Use the `print` methods provided by the [OutputTester](./src/main/java/com/univocity/test/OutputTester.java)
  
- 3.2 - or, store the output results somehow. `StringWriter` and `StringBuilder` are your friends. For convenience, we provided some `print` methods that take your `StringBuilder`s as parameters.
+ 3.2 - Or store the output results somehow. `StringWriter` and `StringBuilder` are your friends. For convenience, we provided some `print` methods that take your `StringBuilder` as a parameter.
  
- 4 - at the end of the test method, invoke `printAndValidate`, `printAndDontValidate` or `validate`. These will print and/or validate the output of your tests. The file that matches your test method name will be read and its contents will be compared against the output of your test. If a single character is different, your test will fail. 
+ 4 - At the end of the test method, invoke `printAndValidate`, `printAndDontValidate` or `validate`. These will print and/or validate the output of your tests. The file that matches your test method name will be read and its contents will be compared against the output of your test. If a single character is different, your test will fail. 
 
 
 **Note:** it is not a good practice to print the output of your tests unless you are debugging/trying to demonstrate something to someone (like we did in the following example).
@@ -78,17 +78,17 @@ In the above example, we created a test class hierarchy, with [OutputTester](./s
 
 Each test method produces some sort of output. The actual implementation in  **[Tutorial003SchemaMapping](https://github.com/uniVocity/univocity-examples/blob/master/src/test/java/com/univocity/examples/Tutorial003SchemaMapping.java)** writes the output of our tests to a `StringWriter` instead of a file.
 
-When a method such as `printAndValidate` is invoked from within your test case, a file with the expected result will be read and its contents compared to the actual output of your test case. Under the `src/test/resources` directory of our examples, you will find the [examples/expectedOutputs directory](https://github.com/uniVocity/univocity-examples/tree/master/src/test/resources/examples/expectedOutputs/).
+When a method such as `printAndValidate` is invoked from within your test case, a file with the expected result will be read and its contents compared to the actual output of your test case. Under the `src/test/resources` directory of our examples, you will find the [examples/expectedOutputs](https://github.com/uniVocity/univocity-examples/tree/master/src/test/resources/examples/expectedOutputs/) directory.
 
-In the `expectedOutputs` directory, you will find the [Tutorial003SchemaMapping subdirectory](https://github.com/uniVocity/univocity-examples/tree/master/src/test/resources/examples/expectedOutputs/Tutorial003SchemaMapping), whose name matches exactly the name of the test class.
+In the `expectedOutputs` directory, you will find the [Tutorial003SchemaMapping](https://github.com/uniVocity/univocity-examples/tree/master/src/test/resources/examples/expectedOutputs/Tutorial003SchemaMapping) subdirectory, whose name matches exactly the name of the test class.
 
-Inside this test class, you will find the following output files, that match the test method names. Each file contains the expected output each corresponding method:
+Inside this directory, you will find the following output files, whose names match the names of the test methods. Each file contains the corresponding expected output. In this case, there are 3 files:
 
  * [example001SchemaMapping](https://github.com/uniVocity/univocity-examples/blob/master/src/test/resources/examples/expectedOutputs/Tutorial003SchemaMapping/example001SchemaMapping)
  * [example002UpdateAgainstDataset](https://github.com/uniVocity/univocity-examples/blob/master/src/test/resources/examples/expectedOutputs/Tutorial003SchemaMapping/example002UpdateAgainstDataset)
  * [example003UpdatePrevention](https://github.com/uniVocity/univocity-examples/blob/master/src/test/resources/examples/expectedOutputs/Tutorial003SchemaMapping/example003UpdatePrevention)
  
-This is the sample output of [example002UpdateAgainstDataset](https://github.com/uniVocity/univocity-examples/blob/master/src/test/resources/examples/expectedOutputs/Tutorial003SchemaMapping/example002UpdateAgainstDataset) (which is in fixed-width format for easier visualization):
+They simply contain what the matching test method would produce normally, if it were to write to a temporary file, or to a String, or whatever. This is the sample output of [example002UpdateAgainstDataset](https://github.com/uniVocity/univocity-examples/blob/master/src/test/resources/examples/expectedOutputs/Tutorial003SchemaMapping/example002UpdateAgainstDataset) (which is in fixed-width format for easier visualization):
 
 ```
 	
@@ -118,7 +118,7 @@ Let's rewrite the previous **[schema mapping tutorial](https://github.com/uniVoc
 	abstract class Example extends  {
 		private final OutputTester tester;
 		public Example() {
-			tester = new OutputTester(Example.class, "examples/expectedOutputs/", "UTF-8");
+			tester = new OutputTester(getClass(), "examples/expectedOutputs/", "UTF-8");
 		}
 		
 		//... other common stuff used by all examples
@@ -160,7 +160,7 @@ Things are pretty much the same, but now you must provide the `class` of your te
 All you have to do is to get the univocity-output-tester.jar. Download it directly from [here]() or add the following to your `pom.xml`:
 
 
-```
+```xml
     
     <dependencies>
     ...
