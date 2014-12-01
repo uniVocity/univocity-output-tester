@@ -1,4 +1,4 @@
-univocity-test-utils
-====================
+univocity-output-tester
+=======================
 
-Simple project validate expected results of test cases that produce data samples.
+We created this project to help us validate the expected results of test cases that produce data samples.
