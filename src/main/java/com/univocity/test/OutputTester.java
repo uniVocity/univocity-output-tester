@@ -199,22 +199,22 @@ public class OutputTester {
 			}
 
 			if (className.startsWith(packageName)) {
-				String method = element.getMethodName().toLowerCase();
+				String method = element.getMethodName();
 
-				if (method.endsWith("validate")) {
+				if (method.toLowerCase().endsWith("validate")) {
 					continue;
 				}
 
 				className = className.substring(className.lastIndexOf('.') + 1, className.length());
 
 				if (print) {
-					System.out.println("\n===[ Output produced by " + className + "." + method + " ]===");
+					System.out.println("\n------[ Output produced by " + className + "." + method + " ]------");
 					System.out.println(producedOutput);
-					System.out.println("\n===[ End of output produced by " + className + "." + method + " ]===");
+					System.out.println("\n------[ End of output produced by " + className + "." + method + " ]------");
 				}
 
 				if (validate) {
-					validateExampleOutput(className, element.getMethodName(), producedOutput);
+					validateExampleOutput(className, method, producedOutput);
 				}
 
 				return;
