@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2014 uniVocity Software Pty Ltd
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,14 +20,14 @@ import java.util.*;
 
 /**
  * A very simple class to facilitate testing of outputs produced by test cases.
- * 
+ *
  * @author uniVocity Software Pty Ltd - <a href="mailto:dev@univocity.com">dev@univocity.com
  *
  */
 public class OutputTester {
 
 	private StringBuilder out = new StringBuilder();
-	
+
 	private final Class<?> testRoot;
 	private final String packageName;
 	private final String expectedOutputsDirPath;
@@ -41,7 +41,7 @@ public class OutputTester {
 	public OutputTester(String expectedOutputsDirPath) {
 		this(null, expectedOutputsDirPath, null);
 	}
-	
+
 	/**
 	 * Creates an output tester to validate outputs produced by test methods of a subclass
 	 * @param expectedOutputsDirPath the path to a file or classpath resource that contains the expected outputs
@@ -72,7 +72,7 @@ public class OutputTester {
 			expectedOutputsDirPath = expectedOutputsDirPath.substring(0, expectedOutputsDirPath.length() - 1);
 		}
 		this.testRoot = testRoot == null ? getClass() : testRoot;
-		this.packageName = testRoot.getPackage().getName();
+		this.packageName = this.testRoot.getPackage().getName();
 		this.expectedOutputsDirPath = expectedOutputsDirPath;
 		this.expectedOutputEncoding = expectedOutputEncoding;
 	}
@@ -85,7 +85,7 @@ public class OutputTester {
 	public void printAndDontValidate(CharSequence output) {
 		printAndValidateOutput(false, true, output.toString());
 	}
-	
+
 	/**
 	 * Prints the result to the standard output without validating its contents
 	 */
@@ -102,7 +102,7 @@ public class OutputTester {
 	public void printAndValidate(CharSequence output) {
 		printAndValidateOutput(true, true, output.toString());
 	}
-	
+
 	/**
 	 * Prints the result to the standard output and validates it against the expected output
 	 * stored in {expectedOutputsDirPath}/{test_class_name}/{test_method_name}
@@ -120,7 +120,7 @@ public class OutputTester {
 	public void validate(CharSequence output) {
 		printAndValidateOutput(true, false, output.toString());
 	}
-	
+
 	/**
 	 * Validates the result against the expected output
 	 * stored in {expectedOutputsDirPath}/{test_class_name}/{test_method_name}
@@ -137,7 +137,7 @@ public class OutputTester {
 	public void println(StringBuilder out, Object contents) {
 		out.append(contents).append('\n');
 	}
-	
+
 	/**
 	 * Appends some content to the output and adds a newline at the end.
 	 * @param contents the contents to be appended
@@ -169,7 +169,7 @@ public class OutputTester {
 	public void print(StringBuilder out, Object contents) {
 		out.append(contents);
 	}
-	
+
 	/**
 	 * Appends some content to the output.
 	 * @param contents the contents to be appended
@@ -178,7 +178,6 @@ public class OutputTester {
 		out.append(contents);
 	}
 
-	
 	/**
 	 * Finds out the test method being executed and compares the output against
 	 * the expected output in {expectedOutputsDirPath}
@@ -194,7 +193,7 @@ public class OutputTester {
 			if (className.endsWith("." + OutputTester.class.getSimpleName())) {
 				continue;
 			}
-			
+
 			if (!className.endsWith("." + testRoot.getSimpleName())) {
 				continue;
 			}
@@ -215,7 +214,7 @@ public class OutputTester {
 				}
 
 				if (validate) {
-					validateExampleOutput(className, method, producedOutput);
+					validateExampleOutput(className, element.getMethodName(), producedOutput);
 				}
 
 				return;
@@ -225,23 +224,33 @@ public class OutputTester {
 		throw new IllegalStateException("Could not load file with expected output");
 	}
 
-	private void validateExampleOutput(String className, String testMethod, String producedOutput) {
+	private InputStream getResultData(String className, String testMethod) {
 		String path = expectedOutputsDirPath + "/" + className + "/" + testMethod;
 
-		InputStream input = this.getClass().getResourceAsStream(path);
+		InputStream input = this.getClass().getClassLoader().getResourceAsStream(path);
+
+		if (input == null) {
+			input = this.testRoot.getResourceAsStream("/" + path);
+		}
 
 		if (input == null) {
 			File file = new File(path);
-			if(file.exists()){
-				try{
+			if (file.exists()) {
+				try {
 					input = new FileInputStream(file);
-				} catch(Exception ex){
-					throw new IllegalStateException("Could not load expected output from path: " + path, ex);
+				} catch (Exception ex) {
+					throw new IllegalStateException("Could not load expected output from path: " + file.getAbsolutePath(), ex);
 				}
+			} else {
+				throw new IllegalStateException("Could not load expected output from path: " + file.getAbsolutePath());
 			}
-			throw new IllegalStateException("Could not load expected output from path: " + path);
 		}
 
+		return input;
+	}
+
+	private void validateExampleOutput(String className, String testMethod, String producedOutput) {
+		InputStream input = getResultData(className, testMethod);
 		String expectedOutput = "";
 
 		Scanner scanner = null;
@@ -279,17 +288,36 @@ public class OutputTester {
 		}
 		return content;
 	}
-	
+
 	/**
 	 * Discards any output stored in the internal buffer.
 	 */
-	public void clear(){
+	public void clear() {
 		this.out = new StringBuilder();
 	}
-	
-	private String getOutputAndClear(){
+
+	private String getOutputAndClear() {
 		String output = out.toString();
 		clear();
 		return output;
+	}
+
+	/**
+	 * Indicates whether line separators in both produced and expected outputs will be normalized (i.e. set to {@code '\n'}).
+	 *
+	 * @return a flag indicating whether normalization of line separators is enabled
+	 */
+	public boolean isNormalizeLineSeparators() {
+		return normalizeLineSeparators;
+	}
+
+	/**
+	 * Enables/disables normalization of line separators. If enabled, the line separators in both produced and expected outputs will
+	 * be set to {@code '\n'}.
+	 *
+	 * @param normalizeLineSeparators flag to enable or disable normalization of line separators
+	 */
+	public void setNormalizeLineSeparators(boolean normalizeLineSeparators) {
+		this.normalizeLineSeparators = normalizeLineSeparators;
 	}
 }
