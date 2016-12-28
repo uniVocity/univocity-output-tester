@@ -22,7 +22,6 @@ import java.util.*;
  * A very simple class to facilitate testing of outputs produced by test cases.
  *
  * @author uniVocity Software Pty Ltd - <a href="mailto:dev@univocity.com">dev@univocity.com
- *
  */
 public class OutputTester {
 
@@ -36,6 +35,7 @@ public class OutputTester {
 
 	/**
 	 * Creates an output tester to validate outputs produced by test methods of a subclass
+	 *
 	 * @param expectedOutputsDirPath the path to a file or classpath resource that contains the expected outputs
 	 */
 	public OutputTester(String expectedOutputsDirPath) {
@@ -44,6 +44,7 @@ public class OutputTester {
 
 	/**
 	 * Creates an output tester to validate outputs produced by test methods of a subclass
+	 *
 	 * @param expectedOutputsDirPath the path to a file or classpath resource that contains the expected outputs
 	 * @param expectedOutputEncoding the encoding of the files stored in the given path
 	 */
@@ -53,7 +54,8 @@ public class OutputTester {
 
 	/**
 	 * Creates an output tester to validate outputs produced by test methods of a given class.
-	 * @param testRoot the test class whose test methods' outputs will be validated
+	 *
+	 * @param testRoot               the test class whose test methods' outputs will be validated
 	 * @param expectedOutputsDirPath the path to a file or classpath resource that contains the expected outputs
 	 */
 	public OutputTester(Class<?> testRoot, String expectedOutputsDirPath) {
@@ -62,7 +64,8 @@ public class OutputTester {
 
 	/**
 	 * Creates an output tester to validate outputs produced by test methods of a given class.
-	 * @param testRoot the test class whose test methods' outputs will be validated
+	 *
+	 * @param testRoot               the test class whose test methods' outputs will be validated
 	 * @param expectedOutputsDirPath the path to a file or classpath resource that contains the expected outputs
 	 * @param expectedOutputEncoding the encoding of the files stored in the given path
 	 */
@@ -131,7 +134,8 @@ public class OutputTester {
 
 	/**
 	 * Appends some content to the output and adds a newline at the end.
-	 * @param out the output to have content appended to.
+	 *
+	 * @param out      the output to have content appended to.
 	 * @param contents the contents to be appended
 	 */
 	public void println(StringBuilder out, Object contents) {
@@ -140,6 +144,7 @@ public class OutputTester {
 
 	/**
 	 * Appends some content to the output and adds a newline at the end.
+	 *
 	 * @param contents the contents to be appended
 	 */
 	public void println(Object contents) {
@@ -148,6 +153,7 @@ public class OutputTester {
 
 	/**
 	 * Appends a newline to the output
+	 *
 	 * @param out the output to have a newline appended
 	 */
 	public void println(StringBuilder out) {
@@ -163,7 +169,8 @@ public class OutputTester {
 
 	/**
 	 * Appends some content to the output.
-	 * @param out the output to have content appended to.
+	 *
+	 * @param out      the output to have content appended to.
 	 * @param contents the contents to be appended
 	 */
 	public void print(StringBuilder out, Object contents) {
@@ -172,6 +179,7 @@ public class OutputTester {
 
 	/**
 	 * Appends some content to the output.
+	 *
 	 * @param contents the contents to be appended
 	 */
 	public void print(Object contents) {
@@ -181,8 +189,9 @@ public class OutputTester {
 	/**
 	 * Finds out the test method being executed and compares the output against
 	 * the expected output in {expectedOutputsDirPath}
-	 * @param validate flag to indicate whether the output should be validated
-	 * @param print flag that indicates whether or not to print the output
+	 *
+	 * @param validate       flag to indicate whether the output should be validated
+	 * @param print          flag that indicates whether or not to print the output
 	 * @param producedOutput the output produced by an example
 	 */
 	private void printAndValidateOutput(boolean validate, boolean print, String producedOutput) {
@@ -276,7 +285,7 @@ public class OutputTester {
 		expectedOutput = cleanup(expectedOutput);
 
 		if (!producedOutput.equals(expectedOutput)) {
-			String message = "Outputs do not match.\n -------[ Result ]-------\n" + producedOutput + "\n-------[ Expected ]-------\n" + expectedOutput + "\n-------[ End ]-------\n";
+			String message = "Outputs do not match:" + " expected [" + expectedOutput + "] but found [" + producedOutput + ']';
 			throw new AssertionError(message);
 		}
 	}
