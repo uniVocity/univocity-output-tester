@@ -32,6 +32,25 @@ public class OutputTester {
 	private final String expectedOutputsDirPath;
 	private final String expectedOutputEncoding;
 	private boolean normalizeLineSeparators = true;
+	private boolean dumpMismatchedOutputToFile = true;
+
+	private final ResourceReader classLoaderReader = new ClassPathResourceReader() {
+		final ClassLoader classloader = this.getClass().getClassLoader();
+
+		@Override
+		public InputStream open(String path) {
+			return classloader.getResourceAsStream(path);
+		}
+	};
+
+	private final ResourceReader classResourceReader = new ClassPathResourceReader() {
+		@Override
+		public InputStream open(String path) {
+			return testRoot.getResourceAsStream('/' + path);
+		}
+	};
+
+	private final ResourceReader fileReader = new FilesystemResourceReader();
 
 	/**
 	 * Creates an output tester to validate outputs produced by test methods of a subclass
@@ -233,25 +252,65 @@ public class OutputTester {
 		throw new IllegalStateException("Could not load file with expected output");
 	}
 
-	private InputStream getResultData(String className, String testMethod) {
-		String path = expectedOutputsDirPath + "/" + className + "/" + testMethod;
+	private InputStream findExpectedResultFile(final String resultsPath, String testMethod, ResourceReader reader) {
+		Set<String> matchingResources = new TreeSet<String>();
 
-		InputStream input = this.getClass().getClassLoader().getResourceAsStream(path);
+		for (String name : reader.listResourcesUnder(resultsPath)) {
+			if (name.toLowerCase().startsWith(testMethod.toLowerCase())) {
+				if (name.equals(testMethod)) {
+					return reader.open(resultsPath + '/' + name);
+				}
+				matchingResources.add(name);
+			}
+		}
+
+		if (!matchingResources.isEmpty()) {
+			if (!reader.isCaseSensitive()) {
+				for (String name : matchingResources) {
+					if (name.equalsIgnoreCase(testMethod)) { //result file has different case
+						return reader.open(resultsPath + '/' + name);
+					}
+				}
+			}
+
+			for (String name : matchingResources) {
+				if (name.length() > testMethod.length() && name.charAt(testMethod.length()) == '.') { //result file has extension
+					if (reader.isCaseSensitive()) {
+						if (name.substring(0, testMethod.length()).equals(testMethod)) { //case must match
+							return reader.open(resultsPath + '/' + name);
+						}
+					} else {
+						return reader.open(resultsPath + '/' + name);
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	private InputStream getResultData(String className, String testMethod) {
+		final String resultsPath = expectedOutputsDirPath + '/' + className;
+
+		InputStream input = findExpectedResultFile(resultsPath, testMethod, classLoaderReader);
 
 		if (input == null) {
-			input = this.testRoot.getResourceAsStream("/" + path);
+			input = findExpectedResultFile(resultsPath, testMethod, classResourceReader);
 		}
 
 		if (input == null) {
-			File file = new File(path);
+			File file = new File(resultsPath + '/' + testMethod);
 			if (file.exists()) {
 				try {
 					input = new FileInputStream(file);
 				} catch (Exception ex) {
-					throw new IllegalStateException("Could not load expected output from path: " + file.getAbsolutePath(), ex);
+					return new ByteArrayInputStream(("Could not load expected output from path: " + file.getAbsolutePath() + ". " + ex.getMessage()).getBytes());
 				}
 			} else {
-				throw new IllegalStateException("Could not load expected output from path: " + file.getAbsolutePath());
+				input = findExpectedResultFile(resultsPath, testMethod, fileReader);
+				if (input != null) {
+					return null;
+				}
+				return new ByteArrayInputStream(("Could not load expected output from path: " + file.getAbsolutePath()).getBytes());
 			}
 		}
 
@@ -286,6 +345,22 @@ public class OutputTester {
 
 		if (!producedOutput.equals(expectedOutput)) {
 			String message = "Outputs do not match:" + " expected [" + expectedOutput + "] but found [" + producedOutput + ']';
+
+			if (dumpMismatchedOutputToFile) {
+				try {
+					File tmp = File.createTempFile(testMethod + "_", ".txt");
+					FileWriter fw = new FileWriter(tmp);
+					try {
+						fw.write(producedOutput);
+						System.out.println(">> Output dumped into temporary file: " + tmp.getAbsolutePath());
+					} finally {
+						fw.close();
+					}
+				} catch (Exception e) {
+					//ignore.
+				}
+			}
+
 			throw new AssertionError(message);
 		}
 	}
@@ -328,5 +403,32 @@ public class OutputTester {
 	 */
 	public void setNormalizeLineSeparators(boolean normalizeLineSeparators) {
 		this.normalizeLineSeparators = normalizeLineSeparators;
+	}
+
+	/**
+	 * Indicates whether the output produced by a given test method should be written into a temporary file.
+	 * This is useful for updating an expected output file, or obtain the initial output file.
+	 *
+	 * If enabled (the default), the message ">> Output dumped into temporary file: {@code <tmp_dir>/<method_name>_<random_number>.txt} will be
+	 * produced before the assertion error is thrown.
+	 *
+	 * @return a flag indicating whether the output produced by failing test methods should be saved into a temporary file.
+	 */
+	public boolean isDumpMismatchedOutputToFile() {
+		return dumpMismatchedOutputToFile;
+	}
+
+	/**
+	 * Defines whether the output produced by a given test method should be written into a temporary file.
+	 * This is useful for updating an expected output file, or obtain the initial output file.
+	 *
+	 * If enabled (the default), the message ">> Output dumped into temporary file: {@code <tmp_dir>/<method_name>_<random_number>.txt} will be
+	 * produced before the assertion error is thrown.
+	 *
+	 * @param dumpMismatchedOutputToFile a flag indicating whether the output produced by failing test methods should
+	 *                                   be saved into a temporary file.
+	 */
+	public void setDumpMismatchedOutputToFile(boolean dumpMismatchedOutputToFile) {
+		this.dumpMismatchedOutputToFile = dumpMismatchedOutputToFile;
 	}
 }
