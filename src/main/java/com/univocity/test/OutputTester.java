@@ -32,6 +32,9 @@ public class OutputTester {
 	private final String expectedOutputEncoding;
 	private boolean normalizeLineSeparators = true;
 	private boolean dumpMismatchedOutputToFile = true;
+	private File resourceDir;
+	private String testResourcesFolder = "src/test/resources";
+
 
 	private final ResourceReader classLoaderReader = new ClassPathResourceReader() {
 		final ClassLoader classloader = this.getClass().getClassLoader();
@@ -151,14 +154,85 @@ public class OutputTester {
 	}
 
 	/**
+	 * Returns the project's actual resource directory, where the expected output files are located. Used
+	 * when {@link #updateExpectedOutput()} is called to determine where to update/create expected output files.
+	 *
+	 * @return the project's resource directory.
+	 */
+	public File getResourceDir() {
+		return resourceDir;
+	}
+
+	/**
+	 * Defines the project's actual resource directory, where the expected output files are located. Used
+	 * when {@link #updateExpectedOutput()} is called to determine where to update/create expected output files.
+	 *
+	 * @param resourceDir project's resource directory.
+	 */
+	public void setResourceDir(File resourceDir) {
+		if (resourceDir != null) {
+			if (!resourceDir.exists() || !resourceDir.isDirectory()) {
+				throw new IllegalArgumentException("Resource path: '" + resourceDir + "' is not a directory or does not exist");
+			}
+		}
+		this.resourceDir = resourceDir;
+	}
+
+	/**
+	 * Returns the project's test resources folder (relative to the project root), where the expected output files are located. Used
+	 * when {@link #updateExpectedOutput()} is called to determine where to update/create expected output files, and {@link #getResourceDir()}
+	 * evaluates to {@code null}
+	 *
+	 * Defaults to "src/test/resources"
+	 *
+	 * @return the test resources folder.
+	 */
+	public String getTestResourcesFolder() {
+		return testResourcesFolder;
+	}
+
+	/**
+	 * Defines the project's test resources folder (relative to the project root), where the expected output files are located. Used
+	 * when {@link #updateExpectedOutput()} is called to determine where to update/create expected output files, and {@link #getResourceDir()}
+	 * evaluates to {@code null};
+	 *
+	 * Defaults to "src/test/resources"
+	 *
+	 * @param testResourcesFolder the test resources folder.
+	 */
+	public void setTestResourcesFolder(String testResourcesFolder) {
+		this.testResourcesFolder = testResourcesFolder;
+	}
+
+	/**
+	 * Updates or creates the expected output file under the given expected output directory. This method will always
+	 * trigger a validation and will always fail. It prints out the different expected and actual results if they are
+	 * different, or fails if the expected output is already updated and the results match.
+	 */
+	public void updateExpectedOutput() {
+		updateExpectedOutput(getOutputAndClear());
+	}
+
+
+	/**
 	 * Updates or creates the expected output file under the given expected output directory. This method will always
 	 * trigger a validation and will always fail. It prints out the different expected and actual results if they are
 	 * different, or fails if the expected output is already updated and the results match.
 	 *
-	 * @param pathToExpectedOutputDir absolute path to the expected output directory.
+	 * @param output the actual output whose contents will be used to generate/update the expected output file.
 	 */
-	public void updateExpectedOutput(String pathToExpectedOutputDir) {
-		updateExpectedOutput(getOutputAndClear(), pathToExpectedOutputDir);
+	public void updateExpectedOutput(CharSequence output) {
+		String pathToExpectedOutputDir;
+		if (resourceDir != null) {
+			pathToExpectedOutputDir = resourceDir.getAbsolutePath();
+		} else {
+			pathToExpectedOutputDir = new File(testResourcesFolder).getAbsolutePath();
+		}
+		if (!expectedOutputsDirPath.startsWith(File.separator)) {
+			pathToExpectedOutputDir += File.separatorChar + expectedOutputsDirPath;
+		}
+
+		updateExpectedOutput(output, pathToExpectedOutputDir);
 	}
 
 	/**
@@ -169,7 +243,7 @@ public class OutputTester {
 	 * @param output                  the actual output whose contents will be used to generate/update the expected output file.
 	 * @param pathToExpectedOutputDir absolute path to the expected output directory.
 	 */
-	public void updateExpectedOutput(CharSequence output, String pathToExpectedOutputDir) {
+	private void updateExpectedOutput(CharSequence output, String pathToExpectedOutputDir) {
 		File expectedOutputDir = new File(pathToExpectedOutputDir);
 		if (!expectedOutputDir.exists()) {
 			throw new IllegalArgumentException("Path to expected output directory '" + pathToExpectedOutputDir + "' does not exist");
