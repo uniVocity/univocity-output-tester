@@ -11,13 +11,10 @@ import java.io.*;
 /**
  * @author uniVocity Software Pty Ltd - <a href="mailto:dev@univocity.com">dev@univocity.com</a>
  */
-class FilesystemResourceReader extends AbstractFileLocator<InputStream> {
+public class FileLocator extends AbstractFileLocator<File> {
 
-	public InputStream open(File file) {
-		try {
-			return new FileInputStream(file);
-		} catch (Exception e) {
-			return null;
-		}
+	@Override
+	protected File open(File file) {
+		return file;
 	}
 }

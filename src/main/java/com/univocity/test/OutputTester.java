@@ -16,7 +16,6 @@
 package com.univocity.test;
 
 import java.io.*;
-import java.util.*;
 
 /**
  * A very simple class to facilitate testing of outputs produced by test cases.
@@ -152,6 +151,36 @@ public class OutputTester {
 	}
 
 	/**
+	 * Updates or creates the expected output file under the given expected output directory. This method will always
+	 * trigger a validation and will always fail. It prints out the different expected and actual results if they are
+	 * different, or fails if the expected output is already updated and the results match.
+	 *
+	 * @param pathToExpectedOutputDir absolute path to the expected output directory.
+	 */
+	public void updateExpectedOutput(String pathToExpectedOutputDir) {
+		updateExpectedOutput(getOutputAndClear(), pathToExpectedOutputDir);
+	}
+
+	/**
+	 * Updates or creates the expected output file under the given expected output directory. This method will always
+	 * trigger a validation and will always fail. It prints out the different expected and actual results if they are
+	 * different, or fails if the expected output is already updated and the results match.
+	 *
+	 * @param output                  the actual output whose contents will be used to generate/update the expected output file.
+	 * @param pathToExpectedOutputDir absolute path to the expected output directory.
+	 */
+	public void updateExpectedOutput(CharSequence output, String pathToExpectedOutputDir) {
+		File expectedOutputDir = new File(pathToExpectedOutputDir);
+		if (!expectedOutputDir.exists()) {
+			throw new IllegalArgumentException("Path to expected output directory '" + pathToExpectedOutputDir + "' does not exist");
+		}
+		if (!expectedOutputDir.isDirectory()) {
+			throw new IllegalArgumentException("Path to expected output directory '" + pathToExpectedOutputDir + "' does not point to a file");
+		}
+		printAndValidateOutput(true, false, output.toString(), expectedOutputDir);
+	}
+
+	/**
 	 * Appends some content to the output and adds a newline at the end.
 	 *
 	 * @param out      the output to have content appended to.
@@ -207,13 +236,27 @@ public class OutputTester {
 
 	/**
 	 * Finds out the test method being executed and compares the output against
-	 * the expected output in {expectedOutputsDirPath}
+	 * the expected output in {@code expectedOutputsDirPath}.
 	 *
 	 * @param validate       flag to indicate whether the output should be validated
 	 * @param print          flag that indicates whether or not to print the output
 	 * @param producedOutput the output produced by an example
 	 */
 	private void printAndValidateOutput(boolean validate, boolean print, String producedOutput) {
+		printAndValidateOutput(validate, print, producedOutput, null);
+	}
+
+	/**
+	 * Finds out the test method being executed and compares the output against
+	 * the expected output in {@code expectedOutputsDirPath}. If {@code expectedOutputToUpdate} is not null,
+	 * the expected output file will be generated/updated to store the expected output, and the the test method will fail.
+	 *
+	 * @param validate          flag to indicate whether the output should be validated
+	 * @param print             flag that indicates whether or not to print the output
+	 * @param producedOutput    the output produced by an example
+	 * @param expectedOutputDir directory of the expected output file to generate/Øupdate
+	 */
+	private void printAndValidateOutput(boolean validate, boolean print, String producedOutput, File expectedOutputDir) {
 		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
 		for (StackTraceElement element : stack) {
 			String className = element.getClassName();
@@ -235,14 +278,12 @@ public class OutputTester {
 
 				className = className.substring(className.lastIndexOf('.') + 1, className.length());
 
-				if (print) {
-					System.out.println("\n------[ Output produced by " + className + "." + method + " ]------");
-					System.out.println(producedOutput);
-					System.out.println("\n------[ End of output produced by " + className + "." + method + " ]------");
+				if (validate) {
+					validateExampleOutput(className, method, producedOutput, expectedOutputDir);
 				}
 
-				if (validate) {
-					validateExampleOutput(className, method, producedOutput);
+				if (print) {
+					print(producedOutput, className, method);
 				}
 
 				return;
@@ -252,49 +293,19 @@ public class OutputTester {
 		throw new IllegalStateException("Could not load file with expected output");
 	}
 
-	private InputStream findExpectedResultFile(final String resultsPath, String testMethod, ResourceReader reader) {
-		Set<String> matchingResources = new TreeSet<String>();
-
-		for (String name : reader.listResourcesUnder(resultsPath)) {
-			if (name.toLowerCase().startsWith(testMethod.toLowerCase())) {
-				if (name.equals(testMethod)) {
-					return reader.open(resultsPath + '/' + name);
-				}
-				matchingResources.add(name);
-			}
-		}
-
-		if (!matchingResources.isEmpty()) {
-			if (!reader.isCaseSensitive()) {
-				for (String name : matchingResources) {
-					if (name.equalsIgnoreCase(testMethod)) { //result file has different case
-						return reader.open(resultsPath + '/' + name);
-					}
-				}
-			}
-
-			for (String name : matchingResources) {
-				if (name.length() > testMethod.length() && name.charAt(testMethod.length()) == '.') { //result file has extension
-					if (reader.isCaseSensitive()) {
-						if (name.substring(0, testMethod.length()).equals(testMethod)) { //case must match
-							return reader.open(resultsPath + '/' + name);
-						}
-					} else {
-						return reader.open(resultsPath + '/' + name);
-					}
-				}
-			}
-		}
-		return null;
+	private void print(String output, String className, String method) {
+		System.out.println("\n------[ Output produced by " + className + "." + method + " ]------");
+		System.out.println(output);
+		System.out.println("\n------[ End of output produced by " + className + "." + method + " ]------");
 	}
 
 	private InputStream getResultData(String className, String testMethod) {
 		final String resultsPath = expectedOutputsDirPath + '/' + className;
 
-		InputStream input = findExpectedResultFile(resultsPath, testMethod, classLoaderReader);
+		InputStream input = (InputStream) ResultHelper.findExpectedResultFile(resultsPath, testMethod, classLoaderReader);
 
 		if (input == null) {
-			input = findExpectedResultFile(resultsPath, testMethod, classResourceReader);
+			input = (InputStream) ResultHelper.findExpectedResultFile(resultsPath, testMethod, classResourceReader);
 		}
 
 		if (input == null) {
@@ -306,7 +317,7 @@ public class OutputTester {
 					return new ByteArrayInputStream(("Could not load expected output from path: " + file.getAbsolutePath() + ". " + ex.getMessage()).getBytes());
 				}
 			} else {
-				input = findExpectedResultFile(resultsPath, testMethod, fileReader);
+				input = (InputStream) ResultHelper.findExpectedResultFile(resultsPath, testMethod, fileReader);
 				if (input != null) {
 					return null;
 				}
@@ -317,28 +328,9 @@ public class OutputTester {
 		return input;
 	}
 
-	private void validateExampleOutput(String className, String testMethod, String producedOutput) {
+	private void validateExampleOutput(String className, String testMethod, String producedOutput, File expectedOutputDir) {
 		InputStream input = getResultData(className, testMethod);
-		String expectedOutput = "";
-
-		Scanner scanner = null;
-		try {
-			if (expectedOutputEncoding == null) {
-				scanner = new Scanner(input);
-			} else {
-				scanner = new Scanner(input, expectedOutputEncoding);
-			}
-			scanner.useDelimiter("\\A");
-			expectedOutput = scanner.hasNext() ? scanner.next() : "";
-		} finally {
-			if (scanner != null) {
-				scanner.close();
-			}
-		}
-
-		if (producedOutput.isEmpty() && expectedOutput.isEmpty()) {
-			return;
-		}
+		String expectedOutput = ResultHelper.readExpectedResult(input, expectedOutputEncoding);
 
 		producedOutput = cleanup(producedOutput);
 		expectedOutput = cleanup(expectedOutput);
@@ -346,24 +338,26 @@ public class OutputTester {
 		if (!producedOutput.equals(expectedOutput)) {
 			String message = "Outputs do not match:" + " expected [" + expectedOutput + "] but found [" + producedOutput + ']';
 
-			if (dumpMismatchedOutputToFile) {
+			if (dumpMismatchedOutputToFile || expectedOutputDir != null) {
 				try {
-					File tmp = File.createTempFile(testMethod + "_", ".txt");
-					FileWriter fw = new FileWriter(tmp);
-					try {
-						fw.write(producedOutput);
-						System.out.println(">> Output dumped into temporary file: " + tmp.getAbsolutePath());
-					} finally {
-						fw.close();
-					}
+					ResultHelper.dumpOutput(producedOutput, expectedOutputDir, className, testMethod);
 				} catch (Exception e) {
-					//ignore.
+					print(producedOutput, className, testMethod);
+					if (e instanceof RuntimeException) {
+						throw (RuntimeException) e;
+					} else {
+						throw new IllegalStateException(e);
+					}
 				}
 			}
 
 			throw new AssertionError(message);
+		} else if (expectedOutputDir != null) {
+			print(producedOutput, className, testMethod);
+			throw new AssertionError("Test case shouldn't call 'updateExpectedOutput(...)' once the expected output is up-to-date.");
 		}
 	}
+
 
 	private String cleanup(String content) {
 		if (normalizeLineSeparators) {

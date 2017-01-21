@@ -6,7 +6,7 @@ import java.util.*;
 /**
  * @author uniVocity Software Pty Ltd - <a href="mailto:dev@univocity.com">dev@univocity.com</a>
  */
-abstract class ClassPathResourceReader implements ResourceReader {
+abstract class ClassPathResourceReader implements ResourceReader<InputStream> {
 
 	@Override
 	public boolean isCaseSensitive() {
