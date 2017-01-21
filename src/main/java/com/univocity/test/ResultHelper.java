@@ -69,7 +69,7 @@ class ResultHelper {
 		}
 	}
 
-	static void dumpOutput(String output, File targetDir, String className, String testMethod) {
+	static void dumpOutput(String output, String className, String testMethod, File targetDir, String charset) {
 		if (targetDir == null) {
 			try {
 				File tmp = File.createTempFile(testMethod + "_", ".txt");
@@ -90,14 +90,13 @@ class ResultHelper {
 			targetFile = new File(dirOfClassResult.getAbsolutePath() + File.separatorChar + testMethod + ".txt");
 		}
 
-
 		try {
-			FileWriter fw = new FileWriter(targetFile);
+			OutputStreamWriter out = new OutputStreamWriter(new FileOutputStream(targetFile), charset);
 			try {
-				fw.write(output);
+				out.write(output);
 				System.out.println("\n>> Output dumped into file: " + targetFile.getAbsolutePath());
 			} finally {
-				fw.close();
+				out.close();
 			}
 		} catch (Exception e) {
 			throw new IllegalStateException("Could not write expected output of method '" + testMethod + "': error writing content to file: " + targetFile.getAbsolutePath(), e);

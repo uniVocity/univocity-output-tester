@@ -340,7 +340,7 @@ public class OutputTester {
 
 			if (dumpMismatchedOutputToFile || expectedOutputDir != null) {
 				try {
-					ResultHelper.dumpOutput(producedOutput, expectedOutputDir, className, testMethod);
+					ResultHelper.dumpOutput(producedOutput, className, testMethod, expectedOutputDir, expectedOutputEncoding);
 				} catch (Exception e) {
 					print(producedOutput, className, testMethod);
 					if (e instanceof RuntimeException) {
