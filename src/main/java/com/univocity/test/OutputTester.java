@@ -350,6 +350,10 @@ public class OutputTester {
 					continue;
 				}
 
+				if (!isTestMethod(className, method)) {
+					continue;
+				}
+
 				className = className.substring(className.lastIndexOf('.') + 1, className.length());
 
 				if (validate) {
@@ -365,6 +369,20 @@ public class OutputTester {
 		}
 
 		throw new IllegalStateException("Could not load file with expected output");
+	}
+
+	private boolean isTestMethod(String className, String methodName) {
+		try {
+			Class<?> clazz = Class.forName(className);
+			//valid test methods are public and have no arguments.
+			return clazz.getMethod(methodName) != null;
+		} catch (NoSuchMethodException e) {
+			//not a test method (couldn't find public, no-arg method with name).
+			return false;
+		} catch (Exception e) {
+			//anything else, we assume it's a valid test and try to go with it.
+			return true;
+		}
 	}
 
 	private void print(String output, String className, String method) {
