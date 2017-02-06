@@ -102,4 +102,34 @@ class ResultHelper {
 			throw new IllegalStateException("Could not write expected output of method '" + testMethod + "': error writing content to file: " + targetFile.getAbsolutePath(), e);
 		}
 	}
+
+	static String getMethodWithArgs(String method, Object[] args) {
+		if (args == null || args.length == 0) {
+			return method;
+		}
+
+		StringBuilder out = new StringBuilder(method);
+
+
+		for (int i = 0; i < args.length; i++) {
+			String arg = getSafeArg(args[i]);
+			out.append('_');
+			out.append(arg);
+		}
+
+		return out.toString();
+	}
+
+	static String getSafeArg(Object arg) {
+		if (arg == null) {
+			return "null";
+		}
+		String out = String.valueOf(arg);
+		out = out.replaceAll("[^\\w .-]", "_");
+		if (out.length() > 15) {
+			out = out.substring(0, 15);
+		}
+
+		return out;
+	}
 }

@@ -104,53 +104,62 @@ public class OutputTester {
 	/**
 	 * Prints the result to the standard output without validating its contents
 	 *
-	 * @param output the result of the test case.
+	 * @param output     the result of the test case.
+	 * @param methodArgs arguments passed to the test method. Used when testing with data providers
 	 */
-	public void printAndDontValidate(CharSequence output) {
-		printAndValidateOutput(false, true, output.toString());
+	public void printAndDontValidate(CharSequence output, Object... methodArgs) {
+		printAndValidateOutput(false, true, output.toString(), methodArgs);
 	}
 
 	/**
 	 * Prints the result to the standard output without validating its contents
+	 *
+	 * @param methodArgs arguments passed to the test method. Used when testing with data providers
 	 */
-	public void printAndDontValidate() {
-		printAndDontValidate(getOutputAndClear());
+	public void printAndDontValidate(Object... methodArgs) {
+		printAndDontValidate(getOutputAndClear(), methodArgs);
 	}
 
 	/**
 	 * Prints the result to the standard output and validates it against the expected output
 	 * stored in {expectedOutputsDirPath}/{test_class_name}/{test_method_name}
 	 *
-	 * @param output the result of the test case to be validated against the expected output.
+	 * @param output     the result of the test case to be validated against the expected output.
+	 * @param methodArgs arguments passed to the test method. Used when testing with data providers
 	 */
-	public void printAndValidate(CharSequence output) {
-		printAndValidateOutput(true, true, output.toString());
+	public void printAndValidate(CharSequence output, Object... methodArgs) {
+		printAndValidateOutput(true, true, output.toString(), methodArgs);
 	}
 
 	/**
 	 * Prints the result to the standard output and validates it against the expected output
 	 * stored in {expectedOutputsDirPath}/{test_class_name}/{test_method_name}
+	 *
+	 * @param methodArgs arguments passed to the test method. Used when testing with data providers
 	 */
-	public void printAndValidate() {
-		printAndValidate(getOutputAndClear());
+	public void printAndValidate(Object... methodArgs) {
+		printAndValidate(getOutputAndClear(), methodArgs);
 	}
 
 	/**
 	 * Validates the result against the expected output
 	 * stored in {expectedOutputsDirPath}/{test_class_name}/{test_method_name}
 	 *
-	 * @param output the result of the test case to be validated against the expected output.
+	 * @param output     the result of the test case to be validated against the expected output.
+	 * @param methodArgs arguments passed to the test method. Used when testing with data providers
 	 */
-	public void validate(CharSequence output) {
-		printAndValidateOutput(true, false, output.toString());
+	public void validate(CharSequence output, Object... methodArgs) {
+		printAndValidateOutput(true, false, output.toString(), methodArgs);
 	}
 
 	/**
 	 * Validates the result against the expected output
 	 * stored in {expectedOutputsDirPath}/{test_class_name}/{test_method_name}
+	 *
+	 * @param methodArgs arguments passed to the test method. Used when testing with data providers
 	 */
-	public void validate() {
-		validate(getOutputAndClear());
+	public void validate(Object... methodArgs) {
+		validate(getOutputAndClear(), methodArgs);
 	}
 
 	/**
@@ -242,8 +251,9 @@ public class OutputTester {
 	 *
 	 * @param output                  the actual output whose contents will be used to generate/update the expected output file.
 	 * @param pathToExpectedOutputDir absolute path to the expected output directory.
+	 * @param methodArgs              arguments passed to the test method. Used when testing with data providers
 	 */
-	private void updateExpectedOutput(CharSequence output, String pathToExpectedOutputDir) {
+	private void updateExpectedOutput(CharSequence output, String pathToExpectedOutputDir, Object... methodArgs) {
 		File expectedOutputDir = new File(pathToExpectedOutputDir);
 		if (!expectedOutputDir.exists()) {
 			throw new IllegalArgumentException("Path to expected output directory '" + pathToExpectedOutputDir + "' does not exist");
@@ -251,7 +261,7 @@ public class OutputTester {
 		if (!expectedOutputDir.isDirectory()) {
 			throw new IllegalArgumentException("Path to expected output directory '" + pathToExpectedOutputDir + "' does not point to a file");
 		}
-		printAndValidateOutput(true, false, output.toString(), expectedOutputDir);
+		printAndValidateOutput(true, false, output.toString(), expectedOutputDir, methodArgs);
 	}
 
 	/**
@@ -315,9 +325,10 @@ public class OutputTester {
 	 * @param validate       flag to indicate whether the output should be validated
 	 * @param print          flag that indicates whether or not to print the output
 	 * @param producedOutput the output produced by an example
+	 * @param methodArgs     arguments passed to the test method. Used when testing with data providers
 	 */
-	private void printAndValidateOutput(boolean validate, boolean print, String producedOutput) {
-		printAndValidateOutput(validate, print, producedOutput, null);
+	private void printAndValidateOutput(boolean validate, boolean print, String producedOutput, Object[] methodArgs) {
+		printAndValidateOutput(validate, print, producedOutput, null, methodArgs);
 	}
 
 	/**
@@ -328,9 +339,10 @@ public class OutputTester {
 	 * @param validate          flag to indicate whether the output should be validated
 	 * @param print             flag that indicates whether or not to print the output
 	 * @param producedOutput    the output produced by an example
-	 * @param expectedOutputDir directory of the expected output file to generate/Øupdate
+	 * @param expectedOutputDir directory of the expected output file to generate/update
+	 * @param methodArgs        arguments passed to the test method. Used when testing with data providers
 	 */
-	private void printAndValidateOutput(boolean validate, boolean print, String producedOutput, File expectedOutputDir) {
+	private void printAndValidateOutput(boolean validate, boolean print, String producedOutput, File expectedOutputDir, Object[] methodArgs) {
 		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
 		for (StackTraceElement element : stack) {
 			String className = element.getClassName();
@@ -350,13 +362,14 @@ public class OutputTester {
 					continue;
 				}
 
-				if (!isTestMethod(className, method)) {
+				if (methodArgs.length == 0 && !isTestMethod(className, method)) {
 					continue;
 				}
 
 				className = className.substring(className.lastIndexOf('.') + 1, className.length());
 
 				if (validate) {
+					method = ResultHelper.getMethodWithArgs(method, methodArgs);
 					validateExampleOutput(className, method, producedOutput, expectedOutputDir);
 				}
 
