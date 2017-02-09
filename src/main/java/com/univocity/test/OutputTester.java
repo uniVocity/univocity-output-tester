@@ -20,7 +20,7 @@ import java.io.*;
 /**
  * A very simple class to facilitate testing of outputs produced by test cases.
  *
- * @author uniVocity Software Pty Ltd - <a href="mailto:dev@univocity.com">dev@univocity.com
+ * @author uniVocity Software Pty Ltd - <a href="mailto:dev@univocity.com">dev@univocity.com</a>
  */
 public class OutputTester {
 
@@ -174,7 +174,7 @@ public class OutputTester {
 
 	/**
 	 * Defines the project's actual resource directory, where the expected output files are located. Used
-	 * when {@link {@link #updateExpectedOutput(Object...)} is called to determine where to update/create expected output files.
+	 * when {@link #updateExpectedOutput(Object...)} is called to determine where to update/create expected output files.
 	 *
 	 * @param resourceDir project's resource directory.
 	 */
@@ -511,7 +511,7 @@ public class OutputTester {
 	 * Indicates whether the output produced by a given test method should be written into a temporary file.
 	 * This is useful for updating an expected output file, or obtain the initial output file.
 	 *
-	 * If enabled (the default), the message ">> Output dumped into temporary file: {@code <tmp_dir>/<method_name>_<random_number>.txt} will be
+	 * If enabled (the default), the message {@code ">> Output dumped into temporary file: <tmp_dir>/<method_name>_<random_number>.txt"} will be
 	 * produced before the assertion error is thrown.
 	 *
 	 * @return a flag indicating whether the output produced by failing test methods should be saved into a temporary file.
@@ -524,7 +524,7 @@ public class OutputTester {
 	 * Defines whether the output produced by a given test method should be written into a temporary file.
 	 * This is useful for updating an expected output file, or obtain the initial output file.
 	 *
-	 * If enabled (the default), the message ">> Output dumped into temporary file: {@code <tmp_dir>/<method_name>_<random_number>.txt} will be
+	 * If enabled (the default), the message {@code ">> Output dumped into temporary file: <tmp_dir>/<method_name>_<random_number>.txt"} will be
 	 * produced before the assertion error is thrown.
 	 *
 	 * @param dumpMismatchedOutputToFile a flag indicating whether the output produced by failing test methods should
