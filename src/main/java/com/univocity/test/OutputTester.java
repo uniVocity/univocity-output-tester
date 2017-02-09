@@ -218,7 +218,7 @@ public class OutputTester {
 	 * trigger a validation and will always fail. It prints out the different expected and actual results if they are
 	 * different, or fails if the expected output is already updated and the results match.
 	 *
-	 * @param methodArgs              arguments passed to the test method. Used when testing with data providers
+	 * @param methodArgs arguments passed to the test method. Used when testing with data providers
 	 */
 	public void updateExpectedOutput(Object... methodArgs) {
 		updateExpectedOutput(getOutputAndClear(), methodArgs);
@@ -230,8 +230,8 @@ public class OutputTester {
 	 * trigger a validation and will always fail. It prints out the different expected and actual results if they are
 	 * different, or fails if the expected output is already updated and the results match.
 	 *
-	 * @param output the actual output whose contents will be used to generate/update the expected output file.
-	               * @param methodArgs              arguments passed to the test method. Used when testing with data providers
+	 * @param output     the actual output whose contents will be used to generate/update the expected output file.
+	 * @param methodArgs arguments passed to the test method. Used when testing with data providers
 	 */
 	public void updateExpectedOutput(CharSequence output, Object... methodArgs) {
 		String pathToExpectedOutputDir;
@@ -347,6 +347,8 @@ public class OutputTester {
 	 */
 	private void printAndValidateOutput(boolean validate, boolean print, String producedOutput, File expectedOutputDir, Object[] methodArgs) {
 		StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+		String classOfSkippedTestMethod = null;
+		String skippedTestMethod = null;
 		for (StackTraceElement element : stack) {
 			String className = element.getClassName();
 
@@ -366,25 +368,34 @@ public class OutputTester {
 				}
 
 				if (methodArgs.length == 0 && !isTestMethod(className, method)) {
+					classOfSkippedTestMethod = className;
+					skippedTestMethod = method;
 					continue;
 				}
 
-				className = className.substring(className.lastIndexOf('.') + 1, className.length());
-
-				if (validate) {
-					method = ResultHelper.getMethodWithArgs(method, methodArgs);
-					validateExampleOutput(className, method, producedOutput, expectedOutputDir);
-				}
-
-				if (print) {
-					print(producedOutput, className, method);
-				}
+				performValidation(validate, print, className, method, methodArgs, producedOutput, expectedOutputDir);
 
 				return;
 			}
 		}
+		if (classOfSkippedTestMethod != null) {
+			performValidation(validate, print, classOfSkippedTestMethod, skippedTestMethod, methodArgs, producedOutput, expectedOutputDir);
+		} else {
+			throw new IllegalStateException("Could not load file with expected output");
+		}
+	}
 
-		throw new IllegalStateException("Could not load file with expected output");
+	private void performValidation(boolean validate, boolean print, String className, String method, Object[] methodArgs, String producedOutput, File expectedOutputDir) {
+		className = className.substring(className.lastIndexOf('.') + 1, className.length());
+
+		if (validate) {
+			method = ResultHelper.getMethodWithArgs(method, methodArgs);
+			validateExampleOutput(className, method, producedOutput, expectedOutputDir);
+		}
+
+		if (print) {
+			print(producedOutput, className, method);
+		}
 	}
 
 	private boolean isTestMethod(String className, String methodName) {
