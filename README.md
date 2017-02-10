@@ -166,7 +166,7 @@ Things are pretty much the same, but now you must provide the `class` of your te
 ## Setting up the dependencies
 
 All you have to do is to get the univocity-output-tester.jar. Download it directly from 
-[here](http://oss.sonatype.org/content/repositories/releases/com/univocity/univocity-output-tester/1.1/univocity-output-tester-1.1.jar) or add the following to your 
+[here](http://oss.sonatype.org/content/repositories/releases/com/univocity/univocity-output-tester/2.0/univocity-output-tester-2.0.jar) or add the following to your 
 `pom.xml`:
 
 
@@ -177,7 +177,7 @@ All you have to do is to get the univocity-output-tester.jar. Download it direct
         <dependency>
             <groupId>com.univocity</groupId>
             <artifactId>univocity-output-tester</artifactId>
-            <version>1.1</version>
+            <version>2.0</version>
             <type>jar</type>
             <scope>test</scope>
         </dependency>
