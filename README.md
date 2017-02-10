@@ -23,9 +23,17 @@ This utility works with the following structure:
  
  3.1 - Use the `print` methods provided by the [OutputTester](./src/main/java/com/univocity/test/OutputTester.java)
  
- 3.2 - Or store the output results somehow. `StringWriter` and `StringBuilder` are your friends. For convenience, we provided some `print` methods that take your `StringBuilder` as a parameter.
+ 3.2 - Or store the output results somehow. `StringWriter` and `StringBuilder` are your friends. For convenience, we 
+ provided some `print` methods that take your `StringBuilder` as a parameter.
  
- 4 - At the end of the test method, invoke `printAndValidate`, `printAndDontValidate` or `validate`. These will print and/or validate the output of your tests. The file that matches your test method name will be read and its contents will be compared against the output of your test. If a single character is different, your test will fail. 
+ 4 - At the end of the test method, invoke `printAndValidate`, `printAndDontValidate` or `validate`. These will print 
+ and/or validate the output of your tests. The file that matches your test method name will be read and its contents 
+ will be compared against the output of your test. If a single character is different, your test will fail.
+ A temporary file with the output produced will be generated.
+  
+ 5 - To generate the expected output file from a sane test result, call `updateExpectedOutput` and it will be generated 
+ or updated for you at your test resources folder (defaults to `src/test/resources` - use `setTestResourcesFolder` to 
+ specify another location). The test will fail to remind you to call one of the validation methods instead. 
 
 
 **Note:** it is not a good practice to print the output of your tests unless you are debugging/trying to demonstrate something to someone (like we did in the following example).
