@@ -34,7 +34,7 @@ public class OutputTester {
 	private boolean dumpMismatchedOutputToFile = true;
 	private File resourceDir;
 	private String testResourcesFolder = "src/test/resources";
-
+	private boolean updateExpectedOutputs = false;
 
 	private final ResourceReader classLoaderReader = new ClassPathResourceReader() {
 		final ClassLoader classloader = this.getClass().getClassLoader();
@@ -99,6 +99,31 @@ public class OutputTester {
 		this.packageName = this.testRoot.getPackage().getName();
 		this.expectedOutputsDirPath = expectedOutputsDirPath;
 		this.expectedOutputEncoding = expectedOutputEncoding;
+	}
+
+	/**
+	 * Used to indicate when all tests of the test class should have their outputs updated. If the {@link #getUpdateExpectedOutputs()}
+	 * method evaluates to {@code true}, all calls to {@link #validate(Object...)} or {@link #printAndValidate(Object...)}
+	 * will trigger the {@link #updateExpectedOutput(Object...)} method internally. No tests will fail but error messages will be
+	 * printed out to the standard output to remind users that the outputs are not being validated.
+	 *
+	 * @param updateExpectedOutputs flag to indicate whether all expected outputs of a test case should be updated.
+	 */
+	public void setUpdateExpectedOutputs(boolean updateExpectedOutputs) {
+		this.updateExpectedOutputs = updateExpectedOutputs;
+	}
+
+	/**
+	 * Returns a flag indicating whether all tests of the test class should have their outputs updated. If {@code true},
+	 * all calls to {@link #validate(Object...)} or {@link #printAndValidate(Object...)} will trigger the
+	 * {@link #updateExpectedOutput(Object...)} method internally. No tests will fail but error messages will be
+	 * printed out to the standard output to remind users that the outputs are not being validated.
+	 *
+	 * @return {@code true} to indicate whether all expected outputs of a test case should be updated, or {@code false} if
+	 * the test case outputs will be validated.
+	 */
+	public boolean getUpdateExpectedOutputs() {
+		return updateExpectedOutputs;
 	}
 
 	/**
@@ -234,6 +259,10 @@ public class OutputTester {
 	 * @param methodArgs arguments passed to the test method. Used when testing with data providers
 	 */
 	public void updateExpectedOutput(CharSequence output, Object... methodArgs) {
+		printAndValidateOutput(true, false, output.toString(), getExpectedOutputDir(), methodArgs);
+	}
+
+	private File getExpectedOutputDir(){
 		String pathToExpectedOutputDir;
 		if (resourceDir != null) {
 			pathToExpectedOutputDir = resourceDir.getAbsolutePath();
@@ -244,19 +273,6 @@ public class OutputTester {
 			pathToExpectedOutputDir += File.separatorChar + expectedOutputsDirPath;
 		}
 
-		updateExpectedOutput(output, pathToExpectedOutputDir, methodArgs);
-	}
-
-	/**
-	 * Updates or creates the expected output file under the given expected output directory. This method will always
-	 * trigger a validation and will always fail. It prints out the different expected and actual results if they are
-	 * different, or fails if the expected output is already updated and the results match.
-	 *
-	 * @param output                  the actual output whose contents will be used to generate/update the expected output file.
-	 * @param pathToExpectedOutputDir absolute path to the expected output directory.
-	 * @param methodArgs              arguments passed to the test method. Used when testing with data providers
-	 */
-	private void updateExpectedOutput(CharSequence output, String pathToExpectedOutputDir, Object[] methodArgs) {
 		File expectedOutputDir = new File(pathToExpectedOutputDir);
 		if (!expectedOutputDir.exists()) {
 			throw new IllegalArgumentException("Path to expected output directory '" + pathToExpectedOutputDir + "' does not exist");
@@ -264,7 +280,7 @@ public class OutputTester {
 		if (!expectedOutputDir.isDirectory()) {
 			throw new IllegalArgumentException("Path to expected output directory '" + pathToExpectedOutputDir + "' does not point to a file");
 		}
-		printAndValidateOutput(true, false, output.toString(), expectedOutputDir, methodArgs);
+		return expectedOutputDir;
 	}
 
 	/**
@@ -448,13 +464,17 @@ public class OutputTester {
 	}
 
 	private void validateExampleOutput(String className, String testMethod, String producedOutput, File expectedOutputDir) {
+		if (updateExpectedOutputs) {
+			expectedOutputDir = getExpectedOutputDir();
+		}
+
 		InputStream input = getResultData(className, testMethod);
 		String expectedOutput = ResultHelper.readExpectedResult(input, expectedOutputEncoding);
 
 		producedOutput = cleanup(producedOutput);
 		expectedOutput = cleanup(expectedOutput);
 
-		if (!producedOutput.equals(expectedOutput)) {
+		if (!updateExpectedOutputs && !producedOutput.equals(expectedOutput)) {
 			String message = "Outputs do not match:" + " expected [" + expectedOutput + "] but found [" + producedOutput + ']';
 
 			if (dumpMismatchedOutputToFile || expectedOutputDir != null) {
@@ -473,7 +493,14 @@ public class OutputTester {
 			throw new AssertionError(message);
 		} else if (expectedOutputDir != null) {
 			print(producedOutput, className, testMethod);
-			throw new AssertionError("Test case shouldn't call 'updateExpectedOutput(...)' once the expected output is up-to-date.");
+			String message = "Test case shouldn't call 'updateExpectedOutput(...)' once the expected output is up-to-date.";
+			if (!updateExpectedOutputs) {
+				throw new AssertionError(message);
+			} else {
+
+				new IllegalStateException(message).printStackTrace();
+			}
+
 		}
 	}
 
