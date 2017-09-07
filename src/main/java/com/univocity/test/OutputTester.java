@@ -478,16 +478,7 @@ public class OutputTester {
 			String message = "Outputs do not match:" + " expected [" + expectedOutput + "] but found [" + producedOutput + ']';
 
 			if (dumpMismatchedOutputToFile || expectedOutputDir != null) {
-				try {
-					ResultHelper.dumpOutput(producedOutput, className, testMethod, expectedOutputDir, expectedOutputEncoding);
-				} catch (Exception e) {
-					print(producedOutput, className, testMethod);
-					if (e instanceof RuntimeException) {
-						throw (RuntimeException) e;
-					} else {
-						throw new IllegalStateException(e);
-					}
-				}
+				updateExpectedOutput(className, testMethod, producedOutput, expectedOutputDir);
 			}
 
 			throw new AssertionError(message);
@@ -497,13 +488,25 @@ public class OutputTester {
 			if (!updateExpectedOutputs) {
 				throw new AssertionError(message);
 			} else {
-
+				updateExpectedOutput(className, testMethod, producedOutput, expectedOutputDir);
 				new IllegalStateException(message).printStackTrace();
 			}
 
 		}
 	}
 
+	private void updateExpectedOutput(String className, String testMethod, String producedOutput, File expectedOutputDir){
+		try {
+			ResultHelper.dumpOutput(producedOutput, className, testMethod, expectedOutputDir, expectedOutputEncoding);
+		} catch (Exception e) {
+			print(producedOutput, className, testMethod);
+			if (e instanceof RuntimeException) {
+				throw (RuntimeException) e;
+			} else {
+				throw new IllegalStateException(e);
+			}
+		}
+	}
 
 	private String cleanup(String content) {
 		if (normalizeLineSeparators) {
