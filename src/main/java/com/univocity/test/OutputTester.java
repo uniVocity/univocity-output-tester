@@ -456,7 +456,7 @@ public class OutputTester {
 				if (input != null) {
 					return null;
 				}
-				return new ByteArrayInputStream(("Could not load expected output from path: " + file.getAbsolutePath()).getBytes());
+				return new ByteArrayInputStream(("Could not load expected output from path: " + resultsPath + '/' + testMethod).getBytes());
 			}
 		}
 
