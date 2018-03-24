@@ -33,8 +33,13 @@ This utility works with the following structure:
   
  5 - To generate the expected output file from a sane test result, call `updateExpectedOutput` and it will be generated 
  or updated for you at your test resources folder (defaults to `src/test/resources` - use `setTestResourcesFolder` to 
- specify another location). The test will fail to remind you to call one of the validation methods instead. 
+ specify another location). The test will fail to remind you to call one of the validation methods instead. **Note**: 
+ If your tests are parameterized, call `updateExpectedOutput` with the test parameter values. Output files named after
+ the method and its parameter values will be generated. 
 
+ 6 - If you made a big change that affects many tests at once, use `setUpdateExpectedOutputs(true)` at the class level -
+ or parent class level if applicable - to update all expected outputs in one go. No tests will fail so you must
+  remember to revert back to `setUpdateExpectedOutputs(false)` or just remove the command.
 
 **Note:** it is not a good practice to print the output of your tests unless you are debugging/trying to demonstrate something to someone (like we did in the following example).
 
@@ -166,7 +171,7 @@ Things are pretty much the same, but now you must provide the `class` of your te
 ## Setting up the dependencies
 
 All you have to do is to get the univocity-output-tester.jar. Download it directly from 
-[here](http://oss.sonatype.org/content/repositories/releases/com/univocity/univocity-output-tester/2.0/univocity-output-tester-2.0.jar) or add the following to your 
+[here](http://oss.sonatype.org/content/repositories/releases/com/univocity/univocity-output-tester/2.1/univocity-output-tester-2.1.jar) or add the following to your 
 `pom.xml`:
 
 
@@ -177,7 +182,7 @@ All you have to do is to get the univocity-output-tester.jar. Download it direct
         <dependency>
             <groupId>com.univocity</groupId>
             <artifactId>univocity-output-tester</artifactId>
-            <version>2.0</version>
+            <version>2.1</version>
             <type>jar</type>
             <scope>test</scope>
         </dependency>
