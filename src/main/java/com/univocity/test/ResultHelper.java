@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2017 uniVocity Software Pty Ltd
+ * Copyright 2017 Univocity Software Pty Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * @author uniVocity Software Pty Ltd - <a href="mailto:dev@univocity.com">dev@univocity.com</a>
+ * @author Univocity Software Pty Ltd - <a href="mailto:dev@univocity.com">dev@univocity.com</a>
  */
 class ResultHelper {
 

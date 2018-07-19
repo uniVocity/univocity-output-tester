@@ -4,14 +4,14 @@
 	<artifactId>univocity-output-tester</artifactId>
 	<version>2.1</version>
 	<name>univocity-output-tester</name>
-	<description>uniVocity output test utility</description>
+	<description>univocity output test utility</description>
 
 	<organization>
-		<name>uniVocity Software Pty Ltd</name>
+		<name>Univocity Software Pty Ltd</name>
 		<url>www.univocity.com</url>
 	</organization>
 
-	<url>http://github.com/uniVocity/univocity-output-tester</url>
+	<url>http://github.com/univocity/univocity-output-tester</url>
 
 	<licenses>
 		<license>
@@ -24,13 +24,13 @@
 
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/uniVocity/univocity-output-tester/issues</url>
+		<url>https://github.com/univocity/univocity-output-tester/issues</url>
 	</issueManagement>
 
 	<scm>
-		<url>https://github.com/uniVocity/univocity-output-tester</url>
-		<connection>scm:git:git://github.com/uniVocity/univocity-output-tester.git</connection>
-		<developerConnection>scm:git:git@github.com:uniVocity/univocity-output-tester.git</developerConnection>
+		<url>https://github.com/univocity/univocity-output-tester</url>
+		<connection>scm:git:git://github.com/univocity/univocity-output-tester.git</connection>
+		<developerConnection>scm:git:git@github.com:univocity/univocity-output-tester.git</developerConnection>
 	</scm>
 
 	<developers>
@@ -43,7 +43,7 @@
 
 		<developer>
 			<id>dev</id>
-			<name>uniVocity development team</name>
+			<name>univocity development team</name>
 			<email>dev@univocity.com</email>
 		</developer>
 	</developers>

@@ -1,11 +1,11 @@
 univocity-output-tester
 =======================
 
-This very simple project was created by **[uniVocity](http://www.univocity.com)** to help you validate the expected results of test cases that produce data samples and non-trivial outputs, such as XML, CSV, collections and arrays, etc.
+This very simple project was created by **[univocity](http://www.univocity.com)** to help you validate the expected results of test cases that produce data samples and non-trivial outputs, such as XML, CSV, collections and arrays, etc.
 
 It enforces a consistent and organized testing structure and enables you to easily see what is going on with your tests if you want to.
 
-We use this project to test the output produced by our ETL framework, **[uniVocity](http://www.univocity.com/pages/about-univocity)**, and our parsing framework, **[uniVocity-parsers](http://www.univocity.com/pages/about-parsers)**.
+We use this project to test the output produced by our ETL framework, **[univocity](http://www.univocity.com/pages/about-univocity)**, and our parsing framework, **[univocity-parsers](http://www.univocity.com/pages/about-parsers)**.
 
 This utility works with the following structure:
 
@@ -45,7 +45,7 @@ This utility works with the following structure:
 
 ## Using the [OutputTester](./src/main/java/com/univocity/test/OutputTester.java) as a parent class
 
-Let's use as our **[schema mapping tutorial](https://github.com/uniVocity/univocity-examples/blob/master/src/test/java/com/univocity/examples/Tutorial003SchemaMapping.java)** as an example. It is essentially a test case with the following structure:
+Let's use as our **[schema mapping tutorial](https://github.com/univocity/univocity-examples/blob/master/src/test/java/com/univocity/examples/Tutorial003SchemaMapping.java)** as an example. It is essentially a test case with the following structure:
 
 
 ```java
@@ -89,19 +89,19 @@ Let's use as our **[schema mapping tutorial](https://github.com/uniVocity/univoc
 
 In the above example, we created a test class hierarchy, with [OutputTester](./src/main/java/com/univocity/test/OutputTester.java) being the parent of all tests. In its constructor, you have to define a path to a directory that contains the expected results of each test where the methods `printAndValidate`, `printAndDontValidate` or `validate` are used.
 
-Each test method produces some sort of output. The actual implementation in  **[Tutorial003SchemaMapping](https://github.com/uniVocity/univocity-examples/blob/master/src/test/java/com/univocity/examples/Tutorial003SchemaMapping.java)** writes the output of our tests to a `StringWriter` instead of a file.
+Each test method produces some sort of output. The actual implementation in  **[Tutorial003SchemaMapping](https://github.com/univocity/univocity-examples/blob/master/src/test/java/com/univocity/examples/Tutorial003SchemaMapping.java)** writes the output of our tests to a `StringWriter` instead of a file.
 
-When a method such as `printAndValidate` is invoked from within your test case, a file with the expected result will be read and its contents compared to the actual output of your test case. Under the `src/test/resources` directory of our examples, you will find the [examples/expectedOutputs](https://github.com/uniVocity/univocity-examples/tree/master/src/test/resources/examples/expectedOutputs/) directory.
+When a method such as `printAndValidate` is invoked from within your test case, a file with the expected result will be read and its contents compared to the actual output of your test case. Under the `src/test/resources` directory of our examples, you will find the [examples/expectedOutputs](https://github.com/univocity/univocity-examples/tree/master/src/test/resources/examples/expectedOutputs/) directory.
 
-In the `expectedOutputs` directory, you will find the [Tutorial003SchemaMapping](https://github.com/uniVocity/univocity-examples/tree/master/src/test/resources/examples/expectedOutputs/Tutorial003SchemaMapping) subdirectory, whose name matches exactly the name of the test class.
+In the `expectedOutputs` directory, you will find the [Tutorial003SchemaMapping](https://github.com/univocity/univocity-examples/tree/master/src/test/resources/examples/expectedOutputs/Tutorial003SchemaMapping) subdirectory, whose name matches exactly the name of the test class.
 
 Inside this directory, you will find the following output files, whose names match the names of the test methods. Each file contains the corresponding expected output. In this case, there are 3 files:
 
- * [example001SchemaMapping](https://github.com/uniVocity/univocity-examples/blob/master/src/test/resources/examples/expectedOutputs/Tutorial003SchemaMapping/example001SchemaMapping)
- * [example002UpdateAgainstDataset](https://github.com/uniVocity/univocity-examples/blob/master/src/test/resources/examples/expectedOutputs/Tutorial003SchemaMapping/example002UpdateAgainstDataset)
- * [example003UpdatePrevention](https://github.com/uniVocity/univocity-examples/blob/master/src/test/resources/examples/expectedOutputs/Tutorial003SchemaMapping/example003UpdatePrevention)
+ * [example001SchemaMapping](https://github.com/univocity/univocity-examples/blob/master/src/test/resources/examples/expectedOutputs/Tutorial003SchemaMapping/example001SchemaMapping)
+ * [example002UpdateAgainstDataset](https://github.com/univocity/univocity-examples/blob/master/src/test/resources/examples/expectedOutputs/Tutorial003SchemaMapping/example002UpdateAgainstDataset)
+ * [example003UpdatePrevention](https://github.com/univocity/univocity-examples/blob/master/src/test/resources/examples/expectedOutputs/Tutorial003SchemaMapping/example003UpdatePrevention)
  
-They simply contain what the matching test method would produce normally, if it were to write to a temporary file, or to a String, or whatever. This is the sample output of [example002UpdateAgainstDataset](https://github.com/uniVocity/univocity-examples/blob/master/src/test/resources/examples/expectedOutputs/Tutorial003SchemaMapping/example002UpdateAgainstDataset) (which is in fixed-width format for easier visualization):
+They simply contain what the matching test method would produce normally, if it were to write to a temporary file, or to a String, or whatever. This is the sample output of [example002UpdateAgainstDataset](https://github.com/univocity/univocity-examples/blob/master/src/test/resources/examples/expectedOutputs/Tutorial003SchemaMapping/example002UpdateAgainstDataset) (which is in fixed-width format for easier visualization):
 
 ```
 	
@@ -123,7 +123,7 @@ They simply contain what the matching test method would produce normally, if it 
 
 ## Using the [OutputTester](./src/main/java/com/univocity/test/OutputTester.java) as a component of another class
 
-Let's rewrite the previous **[schema mapping tutorial](https://github.com/uniVocity/univocity-examples/blob/master/src/test/java/com/univocity/examples/Tutorial003SchemaMapping.java)** to `contain` an  [OutputTester](./src/main/java/com/univocity/test/OutputTester.java). 
+Let's rewrite the previous **[schema mapping tutorial](https://github.com/univocity/univocity-examples/blob/master/src/test/java/com/univocity/examples/Tutorial003SchemaMapping.java)** to `contain` an  [OutputTester](./src/main/java/com/univocity/test/OutputTester.java). 
 
 
 ```java
