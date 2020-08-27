@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.univocity</groupId>
 	<artifactId>univocity-output-tester</artifactId>
-	<version>2.1</version>
+	<version>3.0</version>
 	<name>univocity-output-tester</name>
 	<description>univocity output test utility</description>
 

@@ -103,8 +103,8 @@ public class OutputTester {
 
 	/**
 	 * Used to indicate when all tests of the test class should have their outputs updated. If the {@link #getUpdateExpectedOutputs()}
-	 * method evaluates to {@code true}, all calls to {@link #validate(Object...)} or {@link #printAndValidate(Object...)}
-	 * will trigger the {@link #updateExpectedOutput(Object...)} method internally. No tests will fail but error messages will be
+	 * method evaluates to {@code true}, all calls to {@link #validate()} or {@link #printAndValidate()}
+	 * will trigger the {@link #updateExpectedOutput()} method internally. No tests will fail but error messages will be
 	 * printed out to the standard output to remind users that the outputs are not being validated.
 	 *
 	 * @param updateExpectedOutputs flag to indicate whether all expected outputs of a test case should be updated.
@@ -115,8 +115,8 @@ public class OutputTester {
 
 	/**
 	 * Returns a flag indicating whether all tests of the test class should have their outputs updated. If {@code true},
-	 * all calls to {@link #validate(Object...)} or {@link #printAndValidate(Object...)} will trigger the
-	 * {@link #updateExpectedOutput(Object...)} method internally. No tests will fail but error messages will be
+	 * all calls to {@link #validate()} or {@link #printAndValidate()} will trigger the
+	 * {@link #updateExpectedOutput()} method internally. No tests will fail but error messages will be
 	 * printed out to the standard output to remind users that the outputs are not being validated.
 	 *
 	 * @return {@code true} to indicate whether all expected outputs of a test case should be updated, or {@code false} if
@@ -159,10 +159,18 @@ public class OutputTester {
 	/**
 	 * Prints the result to the standard output and validates it against the expected output
 	 * stored in {expectedOutputsDirPath}/{test_class_name}/{test_method_name}
+	 */
+	public void printAndValidate() {
+		printAndValidate(getOutputAndClear());
+	}
+
+	/**
+	 * Prints the result to the standard output and validates it against the expected output
+	 * stored in {expectedOutputsDirPath}/{test_class_name}/{test_method_name}
 	 *
 	 * @param methodArgs arguments passed to the test method. Used when testing with data providers
 	 */
-	public void printAndValidate(Object... methodArgs) {
+	public void printAndValidateUsingArgs(Object... methodArgs) {
 		printAndValidate(getOutputAndClear(), methodArgs);
 	}
 
@@ -183,13 +191,21 @@ public class OutputTester {
 	 *
 	 * @param methodArgs arguments passed to the test method. Used when testing with data providers
 	 */
-	public void validate(Object... methodArgs) {
+	public void validateUsingArgs(Object... methodArgs) {
 		validate(getOutputAndClear(), methodArgs);
 	}
 
 	/**
+	 * Validates the result against the expected output
+	 * stored in {expectedOutputsDirPath}/{test_class_name}/{test_method_name}
+	 */
+	public void validate() {
+		validate(getOutputAndClear());
+	}
+
+	/**
 	 * Returns the project's actual resource directory, where the expected output files are located. Used
-	 * when {@link #updateExpectedOutput(Object...)} is called to determine where to update/create expected output files.
+	 * when {@link #updateExpectedOutput()} is called to determine where to update/create expected output files.
 	 *
 	 * @return the project's resource directory.
 	 */
@@ -199,7 +215,7 @@ public class OutputTester {
 
 	/**
 	 * Defines the project's actual resource directory, where the expected output files are located. Used
-	 * when {@link #updateExpectedOutput(Object...)} is called to determine where to update/create expected output files.
+	 * when {@link #updateExpectedOutput()} is called to determine where to update/create expected output files.
 	 *
 	 * @param resourceDir project's resource directory.
 	 */
@@ -214,9 +230,8 @@ public class OutputTester {
 
 	/**
 	 * Returns the project's test resources folder (relative to the project root), where the expected output files are located. Used
-	 * when {@link #updateExpectedOutput(Object...)} is called to determine where to update/create expected output files, and {@link #getResourceDir()}
+	 * when {@link #updateExpectedOutput()} is called to determine where to update/create expected output files, and {@link #getResourceDir()}
 	 * evaluates to {@code null}
-	 *
 	 * Defaults to "src/test/resources"
 	 *
 	 * @return the test resources folder.
@@ -227,9 +242,8 @@ public class OutputTester {
 
 	/**
 	 * Defines the project's test resources folder (relative to the project root), where the expected output files are located. Used
-	 * when {@link #updateExpectedOutput(Object...)} is called to determine where to update/create expected output files, and {@link #getResourceDir()}
+	 * when {@link #updateExpectedOutput()} is called to determine where to update/create expected output files, and {@link #getResourceDir()}
 	 * evaluates to {@code null};
-	 *
 	 * Defaults to "src/test/resources"
 	 *
 	 * @param testResourcesFolder the test resources folder.
@@ -242,10 +256,19 @@ public class OutputTester {
 	 * Updates or creates the expected output file under the given expected output directory. This method will always
 	 * trigger a validation and will always fail. It prints out the different expected and actual results if they are
 	 * different, or fails if the expected output is already updated and the results match.
+	 */
+	public void updateExpectedOutput() {
+		updateExpectedOutput(getOutputAndClear());
+	}
+
+	/**
+	 * Updates or creates the expected output file under the given expected output directory. This method will always
+	 * trigger a validation and will always fail. It prints out the different expected and actual results if they are
+	 * different, or fails if the expected output is already updated and the results match.
 	 *
 	 * @param methodArgs arguments passed to the test method. Used when testing with data providers
 	 */
-	public void updateExpectedOutput(Object... methodArgs) {
+	public void updateExpectedOutputUsingArgs(Object... methodArgs) {
 		updateExpectedOutput(getOutputAndClear(), methodArgs);
 	}
 
@@ -262,7 +285,7 @@ public class OutputTester {
 		printAndValidateOutput(true, false, output.toString(), getExpectedOutputDir(), methodArgs);
 	}
 
-	private File getExpectedOutputDir(){
+	private File getExpectedOutputDir() {
 		String pathToExpectedOutputDir;
 		if (resourceDir != null) {
 			pathToExpectedOutputDir = resourceDir.getAbsolutePath();
@@ -495,7 +518,7 @@ public class OutputTester {
 		}
 	}
 
-	private void updateExpectedOutput(String className, String testMethod, String producedOutput, File expectedOutputDir){
+	private void updateExpectedOutput(String className, String testMethod, String producedOutput, File expectedOutputDir) {
 		try {
 			ResultHelper.dumpOutput(producedOutput, className, testMethod, expectedOutputDir, expectedOutputEncoding);
 		} catch (Exception e) {
@@ -551,7 +574,6 @@ public class OutputTester {
 	/**
 	 * Indicates whether the output produced by a given test method should be written into a temporary file.
 	 * This is useful for updating an expected output file, or obtain the initial output file.
-	 *
 	 * If enabled (the default), the message {@code ">> Output dumped into temporary file: <tmp_dir>/<method_name>_<random_number>.txt"} will be
 	 * produced before the assertion error is thrown.
 	 *
@@ -564,7 +586,6 @@ public class OutputTester {
 	/**
 	 * Defines whether the output produced by a given test method should be written into a temporary file.
 	 * This is useful for updating an expected output file, or obtain the initial output file.
-	 *
 	 * If enabled (the default), the message {@code ">> Output dumped into temporary file: <tmp_dir>/<method_name>_<random_number>.txt"} will be
 	 * produced before the assertion error is thrown.
 	 *
